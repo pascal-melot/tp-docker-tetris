@@ -51,16 +51,22 @@
             text-shadow: 2px 2px #f0f;
             margin-bottom: 10px;
         }
-        #leaderboard {
+        .leaderboard-list {
             list-style: decimal;
             font-size: 0.6em;
             color: #0f0;
             padding-left: 18px;
             margin: 0;
             line-height: 1.8;
+            text-align: left;
         }
-        #leaderboard li span {
+        .leaderboard-list li span {
             color: #fff;
+        }
+        #leaderboard-home {
+            width: 200px;
+            min-height: 1.8em;
+            margin-bottom: 20px;
         }
         .controls-section {
             margin-top: auto;
@@ -167,7 +173,7 @@
         <div class="stat-label">NIVEAU</div>
         <div id="level" class="stat-value">1</div>
         <div class="stat-label">MEILLEURS SCORES</div>
-        <ol id="leaderboard"></ol>
+        <ol id="leaderboard" class="leaderboard-list"></ol>
         <div class="controls-section">
             <div class="stat-label" style="margin-bottom:15px; color:#fff;">COMMANDES</div>
             <div class="control-row"><div class="key-cap">←</div><div class="key-cap">→</div><span>BOUGER</span></div>
@@ -179,6 +185,8 @@
     <div id="overlay">
         <h1>TETRIS</h1>
         <p style="color:#fff; font-size:0.7em; margin-bottom:10px;">MODE ARCADE</p>
+        <div class="stat-label" style="color:#fff;">HALL OF FAME</div>
+        <ol id="leaderboard-home" class="leaderboard-list"></ol>
         <input type="text" id="username-input" placeholder="PSEUDO" maxlength="12">
         <div class="blink start-trigger">CLIQUEZ POUR JOUER</div>
     </div>
@@ -189,7 +197,6 @@
     const scoreElement = document.getElementById('score');
     const linesElement = document.getElementById('lines');
     const levelElement = document.getElementById('level');
-    const leaderboardElement = document.getElementById('leaderboard');
     const overlay = document.getElementById('overlay');
     context.scale(20, 20);
     const colors = [
@@ -358,9 +365,14 @@
         try {
             const res = await fetch('/api/scores');
             const rows = await res.json();
-            leaderboardElement.innerHTML = rows
-                .map(r => `<li>${r.username} <span>${r.score}</span></li>`)
-                .join('');
+            const html = rows.length
+                ? rows.map(r => `<li>${r.username} <span>${r.score}</span></li>`).join('')
+                : '<li style="list-style:none; padding-left:0;">Aucun score enregistré</li>';
+            // deux emplacements d'affichage : le panneau de jeu (#leaderboard)
+            // et l'ecran d'accueil (#leaderboard-home), mis a jour ensemble.
+            document.querySelectorAll('.leaderboard-list').forEach(el => {
+                el.innerHTML = html;
+            });
         } catch (err) {
             console.error('Classement indisponible :', err);
         }
