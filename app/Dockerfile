@@ -21,10 +21,16 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY --from=builder /opt/venv /opt/venv
+# Utilisateur systeme dedie : pas de mot de passe, pas de shell interactif,
+# pas de repertoire personnel a gerer. Uniquement pour executer ce process.
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /usr/sbin/nologin appuser
+
+COPY --from=builder --chown=appuser:appuser /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY . .
+COPY --chown=appuser:appuser . .
+
+USER appuser
 
 EXPOSE 5000
 
