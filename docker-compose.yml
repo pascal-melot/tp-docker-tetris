@@ -21,6 +21,7 @@ services:
 
   app:
     build: ./app
+    image: tetris-app
     container_name: tetris-app
     restart: unless-stopped
     environment:
